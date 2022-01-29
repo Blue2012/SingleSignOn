@@ -1,0 +1,74 @@
+
+# 署名鍵の作成
+keytool -genkeypair \
+ -keyalg rsa \
+ -alias openam-idp \
+ -dname "CN=365.am01.progdence.info,OU=development,O=Progdence,L=Chiyoda-ku,ST=Tokyo,C=JP" \
+ -keypass  PD2sbuSS \
+ -keystore mykeystore.jceks \
+ -storetype JCEKS \
+ -storepass PD2sbuSS \
+ -validity 3650 \
+ -keysize 2048
+
+# 証明書の作成
+keytool -keystore ./mykeystore.jceks \
+ -storetype JCEKS -export -alias openam-idp -file idp.der
+
+openssl x509 -in idp.der -inform DER -out idp.pem -outform PEM
+
+## ssoadmの前提準備
+
+-D"com.iplanet.am.naming.map.site.to.server=https://365.am01.progdence.info/openam=http://am01.progdence.info:8080/openam"
+-D"org.forgerock.openam.ssoadm.auth.indexType=service" \
+-D"org.forgerock.openam.ssoadm.auth.indexName=ldapService" \
+
+# ssoadmの設定確認
+/opt/osstech/bin/ssoadm list-servers -u amadmin -f password.txt
+
+
+## SAML設定
+
+# SAML設定のエクスポート
+/opt/osstech/bin/ssoadm export-entity \
+--adminid amAdmin \
+--password-file pdpasswd.txt \
+--entityid "http://365.progdence.info/openam" \
+--realm "365.am01.progdence.info" \
+--meta-data-file saml_meta.xml \
+--extended-data-file saml_data.xml
+
+# URLの変更
+sed -i -e "s@https://am01.progdence.info:443/openam@https://365.am01.progdence.info/openam@g" ./saml_meta.xml
+
+# URL変更の確認
+view saml_meta.xml
+
+## トラストサークルからの除外と設定の削除
+
+# トラストサークルから除外
+/opt/osstech/bin/ssoadm remove-cot-member \
+--adminid amAdmin \
+--password-file password.txt \
+--entityid "http://365.am01.progdence.info:8080/openam" \
+--realm "365.am01.progdence.info" \
+--cot 365cot
+
+# 設定の削除
+/opt/osstech/bin/ssoadm delete-entity \
+--adminid amAdmin \
+--password-file password.txt \
+--entityid "http://365.am01.progdence.info:8080/openam" \
+--realm "365.am01.progdence.info"
+
+# 変更した設定のインポート
+/opt/osstech/bin/ssoadm import-entity \
+--adminid amAdmin \
+--password-file password.txt \
+--realm "365.am01.progdence.info" \
+--cot 365cot \
+--meta-data-file samldata.xml \
+--extended-data-file samldata.xml
+
+# メタデータ取得先URL
+https://am01.progdence.info/openam/saml2/jsp/exportmetadata.jsp?entityid=http://365.am01.progdence.info:8080/openam&realm=365.am01.progdence.info
