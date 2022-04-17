@@ -23,7 +23,7 @@ cp -p /usr/local/etc/openldap/slapd.conf /usr/local/etc/openldap/slapd.conf.org
 slappasswd
 ```
 
-__以下は変更箇所のみを記載__
+以下は変更箇所のみを記載
 
 ```bash:
 suffix          "dc=shibboleth,dc=progdence,dc=name"
@@ -58,26 +58,68 @@ systemctl daemon-reload
 ```bash:
 systemctl start slapd.service
 ```
-__以下のようにファイルを利用してDITを登録する。__
+
+## DITの登録
+
+以下のようにファイルを利用してDITを登録する。
 
 ```bash:
 vi /usr/local/etc/openldap/init.ldif
 ```
 
 ```bash:
-# Organization for Example Corporation
 dn: dc=shibboleth,dc=progdence,dc=name
 objectClass: dcObject
 objectClass: organization
-dc: progdencename
-o: progdence
+dc: shibboleth
+o: shibboleth
+```
+追加する時のユーザーは先ほどのslappasswdで登録したパスワードを利用する。
 
-# Organizational Role for Directory Manager
-dn: cn=Manager,dc=shibboleth,dc=progdence,dc=name
-objectClass: organizationalRole
-cn: Manager
+```bash:
+ldapadd -x -D "cn=Manager,dc=shibboleth,dc=progdence,dc=name" -W -f /usr/local/etc/openldap/init.ldif
+```
+
+## OUの登録
+以下のようにファイルを利用してOUを登録する。
+
+```bash:
+vi /usr/local/etc/openldap/people_org.ldif
 ```
 
 ```bash:
-ldapadd -x -D "cn=Manager,dc=shibboleth,dc=progdence,dc=name" -W -f init.ldif
+dn: ou=people,dc=shibboleth,dc=progdence,dc=name
+objectclass: organizationalUnit
+ou: people
+```
+
+```bash:
+ldapadd -x -D "cn=Manager,dc=shibboleth,dc=progdence,dc=name" -W -f /usr/local/etc/openldap/people_org.ldif
+```
+
+## オブジェクトクラスの追加/スキーマの追加
+以下のように設定ファイルを変更して、標準でインストールされるスキーマを読み込む。   
+
+```bash:
+vi /usr/local/etc/openldap/slapd.conf
+```
+
+```bash:
+include         /usr/local/etc/openldap/schema/core.schema
+include         /usr/local/etc/openldap/schema/collective.schema
+include         /usr/local/etc/openldap/schema/corba.schema
+include         /usr/local/etc/openldap/schema/cosine.schema
+include         /usr/local/etc/openldap/schema/dsee.schema
+include         /usr/local/etc/openldap/schema/duaconf.schema
+include         /usr/local/etc/openldap/schema/java.schema
+include         /usr/local/etc/openldap/schema/misc.schema
+include         /usr/local/etc/openldap/schema/namedobject.schema
+include         /usr/local/etc/openldap/schema/pmi.schema
+include         /usr/local/etc/openldap/schema/nis.schema
+include         /usr/local/etc/openldap/schema/inetorgperson.schema
+```
+
+```bash:
+systemctl restart slapd
+systemctl status slapd
 ```
