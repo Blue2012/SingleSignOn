@@ -36,8 +36,8 @@ keytool -cacerts -list -keystore /etc/alternatives/jre/lib/security/cacerts | \
          -e '5F:3B:8C:F2:F8:10:B3:7D:78:B4:CE:EC:19:19:C3:73:34:B9:C7:74'
 ```
 
-Shibboleth IdPインストール時に登録したパスワードをキーストアのパスワードを入力する。   
-証明書が既に含まれている場合はフィンガープリントが表示される。　　　
+パスワードを入力。ここはカスタムのパスワードを設定していない限りは「changeit」でいいはず。   
+証明書が既に含まれている場合はフィンガープリントが表示される。   
 フィンガープリントが表示されない場合は以下のコマンドで証明書をインポートする。   
 
 ```bash:
@@ -47,5 +47,8 @@ keytool -list -keystore /etc/alternatives/jre/lib/security/cacerts -alias scroot
 改めて、インポートされたかを確認してみる。   
 
 ```bash:
-
+keytool -cacerts -list -keystore /etc/alternatives/jre/lib/security/cacerts | \
+    grep -e '6C:39:7D:A4:0E:55:59:B2:3F:D6:41:B1:12:50:DE:43' \
+         -e '5F:3B:8C:F2:F8:10:B3:7D:78:B4:CE:EC:19:19:C3:73:34:B9:C7:74'
 ```
+何も表示されないが、まぁいいか。
