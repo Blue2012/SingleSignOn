@@ -21,7 +21,8 @@ cp -p /opt/shibboleth-idp/conf/metadata-providers.xml /opt/shibboleth-idp/conf/m
     </MetadataProvider>
 <!-- --> ← コメントアウト解除
 ```
-あとは本当に必要なのかもよく分からないけれど、メタデータの検証猶予期間を設定しておくとページに記載
+あとは本当に必要なのかもよく分からないけれど、メタデータの検証猶予期間を設定しておくとページに記載があるのだが、   
+そちらを編集するとなぜかエラーが発生するので、特に記載は行わない。   
 ちなみにメタデータ自体が必要になるので、そちらも用意をしておく。
 ```bash:
 cd /opt/shibboleth-idp/credentials/
