@@ -1,5 +1,5 @@
 # Shibboleth IdP v5 構築手順
-# 手順概要
+## 手順概要
 1.Shibbolethインストール作業   
 　1-1.Jdkインストール   
 　1-2.Jettyインストール   
@@ -8,6 +8,8 @@
 　1-5.shibbolethインストール   
 2.Shibboleth設定作業   
 　2-1.
+
+## 1.Shibbolethインストール作業
 
 
 
